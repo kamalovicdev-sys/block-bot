@@ -159,17 +159,17 @@ bot.action(/perms_(.+)/, async (ctx) => {
 // ==========================================
 
 const spamWords = [
-    "odam qosh", "odam qush", "Spamdan chiqarishni", "ODAM QOSHISHNI OʻRGATAMAN", "PREMIUM BOR", "Ayol qizlarga yangilik",
-    "aktiv ayol", "aktiv odam", "ИШСИЗ АЙОЛ КИЗЛАРИМИЗЗИ УЗ КАМПАНЯМГА ТАКЛИФ КИЛАМАН",
-    "terib qosh", "terib qush", "Onlayn daromad", "ONLAYN ISH ga taklif qilaman",
+    "odam qosh", "odam qush", "Spamdan chiqarishni", "ODAM QOSHISHNI OʻRGATAMAN", "PREMIUM BOR", "Ayol qizlarga yangilik", "Guruh rivojlantirish bilan shug‘ullanaman",
+    "aktiv ayol", "aktiv odam", "ИШСИЗ АЙОЛ КИЗЛАРИМИЗЗИ УЗ КАМПАНЯМГА ТАКЛИФ КИЛАМАН", "Аёл-қизлар учун қулай иш", "Тадбиркорликни ўргатаман", "BARCHA TURDAGI MEBELARGA ZAKAZ OLAMIZ",
+    "terib qosh", "terib qush", "Onlayn daromad", "ONLAYN ISH ga taklif qilaman", "Diqqat adminlar uchun e'lon", "Bosh tulov", "+998903045417", "spamdan chiqarib beraman",
     "halol va qonuniy", "qonuniy halol", "Ишчи керак", "Qiziqqanlar lichga", "Odam qushib beramiz narxlari aaksiyada hozirda kimga kerak bulsa lechkamga yozsin gaplashamizzz",
-    "ish vaqti erkin", "tajriba talab", "lichkamga yozinglar", "+998944449949",
-    "haftalik daromad", "oylik daromad", "guruhlardan olib beraman", "Евро ремонт", "Сантехника", "+998916820903",
-    "sifatli aktiv", "nakrutka", "платим 2 раза неделю", "kimga shunaqa xizmatim",
-    "obunachi kopaytirish", "reaksiya va layk", "kimga kerek bulsa", "Diqqat diqqat", "judayam oson ishbor",
-    "ovoz yigib", "onlayn ish", "online ish", "Terib qushish iimkoniyati bor",
-    "premium olib", "premiumlar", "ovoz yigib beraman", "I have ᴏne Queѕtioռ",
-    "savdo bn shugullanmoqchi", "daromad topish", "Иш вақти эркин", "Қизиққанлар батафсил маълумот олиш учун личкага ёзинг",
+    "ish vaqti erkin", "tajriba talab", "lichkamga yozinglar", "+998944449949", "Diqqat adminlar uchun faqat", "arzon narxda guruhga", "telefonga tushunadigan opa singillarimiz yozin",
+    "haftalik daromad", "oylik daromad", "guruhlardan olib beraman", "Евро ремонт", "Сантехника", "+998916820903", "Xavsiz va ishonchli", "Murojaatlar lichkada...",
+    "sifatli aktiv", "nakrutka", "платим 2 раза неделю", "kimga shunaqa xizmatim", "guruxga ayollarni terib qushib beraman", "Ishchi kerak.", "Batafsil ma'lumot va ro‘yxatdan o‘tish uchun",
+    "obunachi kopaytirish", "reaksiya va layk", "kimga kerek bulsa", "Diqqat diqqat", "judayam oson ishbor", "Ayol qizlarga yangilik", "faqat bu ish Ayol qizlar uchun",
+    "ovoz yigib", "onlayn ish", "online ish", "Terib qushish iimkoniyati bor", "ADMINLAR UCHUN ELON", "lechkamga yozsin gaplashamizzz", "Бир умир Дуо киламан",
+    "premium olib", "premiumlar", "ovoz yigib beraman", "I have ᴏne Queѕtioռ", "odam qoshish hizmati", "Чекланмаган обёмда", "Coucou je suis en Live",
+    "savdo bn shugullanmoqchi", "daromad topish", "Иш вақти эркин", "Қизиққанлар батафсил маълумот олиш учун личкага ёзинг", "Ҳалол ва қонуний фаолият",
     "1000 ta toza", "aralash 60 ming", "uzoq muddat kirmagan", "opa singillarimiz yozin", "bekochila bezovta qilmasin", "SKIDKA"
 ];
 
