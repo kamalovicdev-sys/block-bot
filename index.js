@@ -159,17 +159,17 @@ bot.action(/perms_(.+)/, async (ctx) => {
 // ==========================================
 
 const spamWords = [
-    "odam qosh", "odam qush", "Spamdan chiqarishni", "ODAM QOSHISHNI OʻRGATAMAN", "PREMIUM BOR", "Ayol qizlarga yangilik", "Guruh rivojlantirish bilan shug‘ullanaman",
+    "odam qosh", "odam qush", "Spamdan chiqarishni", "ODAM QOSHISHNI OʻRGATAMAN", "PREMIUM BOR", "Ayol qizlarga yangilik", "Guruh rivojlantirish bilan shug‘ullanaman", "ishlab daromad qilaman",
     "aktiv ayol", "aktiv odam", "ИШСИЗ АЙОЛ КИЗЛАРИМИЗЗИ УЗ КАМПАНЯМГА ТАКЛИФ КИЛАМАН", "Аёл-қизлар учун қулай иш", "Тадбиркорликни ўргатаман", "BARCHA TURDAGI MEBELARGA ZAKAZ OLAMIZ",
     "terib qosh", "terib qush", "Onlayn daromad", "ONLAYN ISH ga taklif qilaman", "Diqqat adminlar uchun e'lon", "Bosh tulov", "+998903045417", "spamdan chiqarib beraman",
     "halol va qonuniy", "qonuniy halol", "Ишчи керак", "Qiziqqanlar lichga", "Odam qushib beramiz narxlari aaksiyada hozirda kimga kerak bulsa lechkamga yozsin gaplashamizzz",
     "ish vaqti erkin", "tajriba talab", "lichkamga yozinglar", "+998944449949", "Diqqat adminlar uchun faqat", "arzon narxda guruhga", "telefonga tushunadigan opa singillarimiz yozin",
-    "haftalik daromad", "oylik daromad", "guruhlardan olib beraman", "Евро ремонт", "Сантехника", "+998916820903", "Xavsiz va ishonchli", "Murojaatlar lichkada...",
+    "haftalik daromad", "oylik daromad", "guruhlardan olib beraman", "Евро ремонт", "Сантехника", "+998916820903", "Xavsiz va ishonchli", "Murojaatlar lichkada", "Maxsudova Zilola",
     "sifatli aktiv", "nakrutka", "платим 2 раза неделю", "kimga shunaqa xizmatim", "guruxga ayollarni terib qushib beraman", "Ishchi kerak.", "Batafsil ma'lumot va ro‘yxatdan o‘tish uchun",
     "obunachi kopaytirish", "reaksiya va layk", "kimga kerek bulsa", "Diqqat diqqat", "judayam oson ishbor", "Ayol qizlarga yangilik", "faqat bu ish Ayol qizlar uchun",
     "ovoz yigib", "onlayn ish", "online ish", "Terib qushish iimkoniyati bor", "ADMINLAR UCHUN ELON", "lechkamga yozsin gaplashamizzz", "Бир умир Дуо киламан",
-    "premium olib", "premiumlar", "ovoz yigib beraman", "I have ᴏne Queѕtioռ", "odam qoshish hizmati", "Чекланмаган обёмда", "Coucou je suis en Live",
-    "savdo bn shugullanmoqchi", "daromad topish", "Иш вақти эркин", "Қизиққанлар батафсил маълумот олиш учун личкага ёзинг", "Ҳалол ва қонуний фаолият",
+    "premium olib", "premiumlar", "ovoz yigib beraman", "I have ᴏne Queѕtioռ", "odam qoshish hizmati", "Чекланмаган обёмда", "Coucou je suis en Live", "pul topishni oʻrgataman",
+    "savdo bn shugullanmoqchi", "daromad topish", "Иш вақти эркин", "Қизиққанлар батафсил маълумот олиш учун личкага ёзинг", "Ҳалол ва қонуний фаолият", "Xitoy Kursimga yoziling",
     "1000 ta toza", "aralash 60 ming", "uzoq muddat kirmagan", "opa singillarimiz yozin", "bekochila bezovta qilmasin", "SKIDKA"
 ];
 
@@ -211,29 +211,40 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
     const userName = ctx.from.first_name;
 
     try {
-        const chatMember = await ctx.getChatMember(userId);
-        const isAdmin = chatMember.status === 'administrator' || chatMember.status === 'creator';
+        // --- 1-QADAM: ADMINLIKNI TEKSHIRISH ---
+        let isAdmin = false;
+
+        // Agar foydalanuvchi "Group Anonymous Bot" (1087968824) bo'lsa, u admindir.
+        if (userId === 1087968824) {
+            isAdmin = true;
+        } else {
+            const chatMember = await ctx.getChatMember(userId);
+            isAdmin = chatMember.status === 'administrator' || chatMember.status === 'creator';
+        }
+
+        // AGAR FOYDALANUVCHI ADMIN BO'LSA, TEKSHIRUVLARNI SHU YERDA TO'XTATAMIZ!
+        // U xohlagan narsasini (forward, link, apk) yozishi mumkin.
+        if (isAdmin) {
+            return next();
+        }
 
         // --- A) FORWARD QILINGAN XABARLAR TEKSHIRUVI ---
-        // Boshqa kanaldan yoki birovdan forward qilingan xabarlarni to'xtatamiz
         const isForwarded = message.forward_date || message.forward_origin;
         if (isForwarded) {
-            if (!isAdmin) {
-                await ctx.deleteMessage(messageId).catch(() => {});
+            await ctx.deleteMessage(messageId).catch(() => {});
 
-                const durationMs = 3 * 24 * 60 * 60 * 1000;
-                const unbanDate = new Date(Date.now() + durationMs);
-                const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
-                const untilDate3 = Math.floor(unbanDate.getTime() / 1000);
+            const durationMs = 3 * 24 * 60 * 60 * 1000;
+            const unbanDate = new Date(Date.now() + durationMs);
+            const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
+            const untilDate3 = Math.floor(unbanDate.getTime() / 1000);
 
-                await ctx.restrictChatMember(userId, {
-                    permissions: { can_send_messages: false, can_send_media_messages: false, can_send_other_messages: false, can_add_web_page_previews: false },
-                    until_date: untilDate3
-                });
+            await ctx.restrictChatMember(userId, {
+                permissions: { can_send_messages: false, can_send_media_messages: false, can_send_other_messages: false, can_add_web_page_previews: false },
+                until_date: untilDate3
+            });
 
-                await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhga boshqa joydan xabar uzatish (Forward) taqiqlanadi!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
-                return;
-            }
+            await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhga boshqa joydan xabar uzatish (Forward) taqiqlanadi!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
+            return;
         }
 
         // --- B) APK TEKSHIRUVI ---
@@ -241,18 +252,13 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
             if (message.document.file_name.toLowerCase().endsWith('.apk')) {
                 await ctx.deleteMessage(messageId).catch(() => {});
 
-                if (!isAdmin) {
-                    const durationMs = 30 * 24 * 60 * 60 * 1000;
-                    const unbanDate = new Date(Date.now() + durationMs);
-                    const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
-                    const untilDate30 = Math.floor(unbanDate.getTime() / 1000);
+                const durationMs = 30 * 24 * 60 * 60 * 1000;
+                const unbanDate = new Date(Date.now() + durationMs);
+                const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
+                const untilDate30 = Math.floor(unbanDate.getTime() / 1000);
 
-                    await ctx.restrictChatMember(userId, { permissions: { can_send_messages: false }, until_date: untilDate30 });
-                    await ctx.reply(`🚫 <a href="tg://user?id=${userId}">${userName}</a> guruhga APK fayl yuborgani uchun <b>${formattedDate}</b> gacha xabar yozish huquqidan mahrum qilindi.`, { parse_mode: 'HTML' });
-                } else {
-                    const msg = await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a> (Admin), xavfsizlik sababli guruhga APK fayl yuborish barchaga taqiqlangan. Xabar o'chirildi!`, { parse_mode: 'HTML' });
-                    setTimeout(() => ctx.deleteMessage(msg.message_id).catch(() => {}), 5000);
-                }
+                await ctx.restrictChatMember(userId, { permissions: { can_send_messages: false }, until_date: untilDate30 });
+                await ctx.reply(`🚫 <a href="tg://user?id=${userId}">${userName}</a> guruhga APK fayl yuborgani uchun <b>${formattedDate}</b> gacha xabar yozish huquqidan mahrum qilindi.`, { parse_mode: 'HTML' });
                 return;
             }
         }
@@ -273,44 +279,6 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
             if (isSpamWord || isSpamPattern) {
                 await ctx.deleteMessage(messageId).catch(() => {});
 
-                if (!isAdmin) {
-                    const durationMs = 3 * 24 * 60 * 60 * 1000;
-                    const unbanDate = new Date(Date.now() + durationMs);
-                    const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
-                    const untilDate3 = Math.floor(unbanDate.getTime() / 1000);
-
-                    await ctx.restrictChatMember(userId, {
-                        permissions: { can_send_messages: false, can_send_media_messages: false, can_send_other_messages: false, can_add_web_page_previews: false },
-                        until_date: untilDate3
-                    });
-
-                    await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhda spam va reklama tarqatish qat'iyan man etiladi!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
-                } else {
-                    const msg = await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a> (Admin), reklama va spam xabarlari avtomatik o'chirildi!`, { parse_mode: 'HTML' });
-                    setTimeout(() => ctx.deleteMessage(msg.message_id).catch(() => {}), 5000);
-                }
-                return;
-            }
-        }
-
-        // --- D) LINK VA USERNAME (@) TEKSHIRUVI ---
-        const entities = message.entities || message.caption_entities;
-        let hasLinkOrMention = false;
-
-        if (entities) {
-            // oddiy ssilka, yashiringan ssilka, @username va yashiringan username'larni ushlaymiz
-            hasLinkOrMention = entities.some(entity =>
-                entity.type === 'url' ||
-                entity.type === 'text_link' ||
-                entity.type === 'mention' ||
-                entity.type === 'text_mention'
-            );
-        }
-
-        if (hasLinkOrMention) {
-            if (!isAdmin) {
-                await ctx.deleteMessage(messageId).catch(() => {});
-
                 const durationMs = 3 * 24 * 60 * 60 * 1000;
                 const unbanDate = new Date(Date.now() + durationMs);
                 const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
@@ -321,9 +289,39 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
                     until_date: untilDate3
                 });
 
-                await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhda havola (link) yoki reklama (@username) tarqatish mumkin emas!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
+                await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhda spam va reklama tarqatish qat'iyan man etiladi!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
                 return;
             }
+        }
+
+        // --- D) LINK VA USERNAME (@) TEKSHIRUVI ---
+        const entities = message.entities || message.caption_entities;
+        let hasLinkOrMention = false;
+
+        if (entities) {
+            hasLinkOrMention = entities.some(entity =>
+                entity.type === 'url' ||
+                entity.type === 'text_link' ||
+                entity.type === 'mention' ||
+                entity.type === 'text_mention'
+            );
+        }
+
+        if (hasLinkOrMention) {
+            await ctx.deleteMessage(messageId).catch(() => {});
+
+            const durationMs = 3 * 24 * 60 * 60 * 1000;
+            const unbanDate = new Date(Date.now() + durationMs);
+            const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
+            const untilDate3 = Math.floor(unbanDate.getTime() / 1000);
+
+            await ctx.restrictChatMember(userId, {
+                permissions: { can_send_messages: false, can_send_media_messages: false, can_send_other_messages: false, can_add_web_page_previews: false },
+                until_date: untilDate3
+            });
+
+            await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhda havola (link) yoki reklama (@username) tarqatish mumkin emas!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
+            return;
         }
 
     } catch (error) {
