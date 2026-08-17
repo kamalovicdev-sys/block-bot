@@ -158,18 +158,18 @@ bot.action(/perms_(.+)/, async (ctx) => {
 // 4. SPAM SO'ZLAR BAZASI
 // ==========================================
 const spamWords = [
-    "odam qosh", "odam qush",
-    "aktiv ayol", "aktiv erkak",
-    "terib qosh", "terib qush",
-    "halol va qonuniy", "qonuniy halol",
-    "ish vaqti erkin", "tajriba talab",
-    "haftalik daromad", "oylik daromad",
-    "bola puli", "nakrutka",
-    "obunachi kopaytirish", "reaksiya va layk",
-    "ovoz yigib", "onlayn ish", "online ish",
-    "premium olib", "premiumlar",
-    "savdo bn shugullanmoqchi", "daromad topish",
-    "1000 ta toza", "aralash 60 ming", "uzoq muddat kirmagan"
+    "odam qosh", "odam qush", "Spamdan chiqarishni", "ODAM QOSHISHNI OʻRGATAMAN", "PREMIUM BOR", "Ayol qizlarga yangilik",
+    "aktiv ayol", "aktiv odam", "ИШСИЗ АЙОЛ КИЗЛАРИМИЗЗИ УЗ КАМПАНЯМГА ТАКЛИФ КИЛАМАН",
+    "terib qosh", "terib qush", "Onlayn daromad", "ONLAYN ISH ga taklif qilaman",
+    "halol va qonuniy", "qonuniy halol", "Ишчи керак", "Qiziqqanlar lichga", "Odam qushib beramiz narxlari aaksiyada hozirda kimga kerak bulsa lechkamga yozsin gaplashamizzz",
+    "ish vaqti erkin", "tajriba talab", "lichkamga yozinglar",
+    "haftalik daromad", "oylik daromad", "guruhlardan olib beraman",
+    "sifatli aktiv", "nakrutka", "платим 2 раза неделю", "kimga shunaqa xizmatim",
+    "obunachi kopaytirish", "reaksiya va layk", "kimga kerek bulsa",
+    "ovoz yigib", "onlayn ish", "online ish", "Terib qushish iimkoniyati bor",
+    "premium olib", "premiumlar", "ovoz yigib beraman", "I have ᴏne Queѕtioռ",
+    "savdo bn shugullanmoqchi", "daromad topish", "Иш вақти эркин", "Қизиққанлар батафсил маълумот олиш учун личкага ёзинг",
+    "1000 ta toza", "aralash 60 ming", "uzoq muddat kirmagan", "opa singillarimiz yozin", "bekochila bezovta qilmasin", "SKIDKA"
 ];
 
 // ==========================================
