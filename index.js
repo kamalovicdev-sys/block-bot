@@ -155,8 +155,10 @@ bot.action(/perms_(.+)/, async (ctx) => {
 });
 
 // ==========================================
-// 4. SPAM SO'ZLAR BAZASI
+// 4. SPAM SO'ZLAR BAZASI VA AQLLI FILTR
 // ==========================================
+
+// Sizning avvalgi so'zlar bazangiz (o'zgarishsiz qoldirildi)
 const spamWords = [
     "odam qosh", "odam qush", "Spamdan chiqarishni", "ODAM QOSHISHNI OʻRGATAMAN", "PREMIUM BOR", "Ayol qizlarga yangilik",
     "aktiv ayol", "aktiv odam", "ИШСИЗ АЙОЛ КИЗЛАРИМИЗЗИ УЗ КАМПАНЯМГА ТАКЛИФ КИЛАМАН",
@@ -170,6 +172,31 @@ const spamWords = [
     "premium olib", "premiumlar", "ovoz yigib beraman", "I have ᴏne Queѕtioռ",
     "savdo bn shugullanmoqchi", "daromad topish", "Иш вақти эркин", "Қизиққанлар батафсил маълумот олиш учун личкага ёзинг",
     "1000 ta toza", "aralash 60 ming", "uzoq muddat kirmagan", "opa singillarimiz yozin", "bekochila bezovta qilmasin", "SKIDKA"
+];
+
+// Smart Regex Pattern (Xatoliklar bilan yozilgan spamlarni ushlash uchun)
+const spamPatterns = [
+    /(guruh|grupp|гурух|групп).*?(aktiv|актив|odam|одам|ayol|erkak|juvoy|kantakt|kontakt)/i,
+    /(terib|teriib|териб).*?(qush|qosh|qo'?sh|куш|кош)/i,
+    /(odam|одам|ayol|erkak|qizlar|qiizlar|kantakt|kontakt).*?(qoshish|qushish|q[o|u]'?shib|qoshib)/i,
+    /(nakrutka|накрутка)/i,
+    /(obunachi|обуначи).*?(kopaytirish|копайтириш)/i,
+    /\d+\s*\+\s*\d+\s*ta\s*bonus/i,
+    /arzon.*?narx.*?q[o|u]sh/i,
+    /aksiya.*?narx/i,
+    /(ishchi|ишчи).*?(kerak|керак)/i,
+    /(onlayn|online|онлайн|онлайин).*?(daromad|даромад|tarmok|тармок|ish|иш)/i,
+    /(uyida|уйида).*?(o'?tirib|утириб)/i,
+    /100%.*?qonuniy/i,
+    /(oylik|ойлик|z\/p|з\/п|foyda|фойда).*?\d+.*?(ming|минг|mln|млн|milion|милон|rub|руб)/i,
+    /(bo'?sh|бош).*?(ish|иш).*?(o'?rni|орни)/i,
+    /(bola|бола).*?(puli|пули)/i,
+    /(mutlaqo|ta'?lim).*?(tekin|bepul)/i,
+    /birinchi.*?yozgan.*?kishiga/i,
+    /(premium|премиум).*?(olib|олиб)/i,
+    /savdo.*?shug['o]llanmoqchi/i,
+    /[\u4e00-\u9fa5]/, // Xitoycha harflar va reklamalarni ushlaydi
+    /([^\w\s])\1{5,}/ // Bitta maxsus belgini 5 marta takrorlab (◇◇◇◇◇◇ kabi) spam qiladiganlarni ushlaydi
 ];
 
 // ==========================================
@@ -211,15 +238,21 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
         // Xabar matnini aniqlash (oddiy text yoki rasm/video ostidagi yozuv)
         const textToCheck = message.text || message.caption || '';
 
-        // --- B) SPAM SO'ZLARNI TEKSHIRISH ---
+        // --- B) SPAM SO'ZLAR VA AQLLI FILTR TEKSHIRUVI ---
         if (textToCheck) {
             // Matnni kichik harfga o'tkazish va tutuq belgilarini olib tashlash
             const normalizedText = textToCheck.toLowerCase().replace(/['‘`’ʻ]/g, '');
 
-            // Xabarda spam so'zlardan biri qatnashganligini tekshirish
-            const isSpam = spamWords.some(word => normalizedText.includes(word));
+            // 1. Siz kiritgan spamWords bazasidan tekshirish
+            const isSpamWord = spamWords.some(word =>
+                normalizedText.includes(word.toLowerCase().replace(/['‘`’ʻ]/g, ''))
+            );
 
-            if (isSpam) {
+            // 2. Smart Regex Pattern (Aqlli AI) orqali tekshirish
+            const isSpamPattern = spamPatterns.some(pattern => pattern.test(normalizedText));
+
+            // Agar qaysidir filtrda spam topilsa
+            if (isSpamWord || isSpamPattern) {
                 await ctx.deleteMessage(messageId).catch(() => {});
 
                 if (!isAdmin) {
@@ -254,7 +287,7 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
             if (!isAdmin) {
                 await ctx.deleteMessage(messageId).catch(() => {});
 
-                const durationMs = 3 * 24 * 60 * 60 * 1000;
+                const durationMs = 3 * 24 * 60 * 60 * 1000; // 3 kun
                 const unbanDate = new Date(Date.now() + durationMs);
                 const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
                 const untilDate3 = Math.floor(unbanDate.getTime() / 1000);
@@ -278,7 +311,7 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
 
 // Botni ishga tushirish
 bot.launch().then(() => {
-    console.log("✅ Bot muvaffaqiyatli ishga tushdi (Anti-Spam va Express bilan).");
+    console.log("✅ Bot muvaffaqiyatli ishga tushdi (Anti-Spam Regex va Express bilan).");
 });
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
