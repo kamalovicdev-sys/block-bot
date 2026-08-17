@@ -158,7 +158,6 @@ bot.action(/perms_(.+)/, async (ctx) => {
 // 4. SPAM SO'ZLAR BAZASI VA AQLLI FILTR
 // ==========================================
 
-// Sizning avvalgi so'zlar bazangiz (o'zgarishsiz qoldirildi)
 const spamWords = [
     "odam qosh", "odam qush", "Spamdan chiqarishni", "ODAM QOSHISHNI OʻRGATAMAN", "PREMIUM BOR", "Ayol qizlarga yangilik",
     "aktiv ayol", "aktiv odam", "ИШСИЗ АЙОЛ КИЗЛАРИМИЗЗИ УЗ КАМПАНЯМГА ТАКЛИФ КИЛАМАН",
@@ -174,7 +173,7 @@ const spamWords = [
     "1000 ta toza", "aralash 60 ming", "uzoq muddat kirmagan", "opa singillarimiz yozin", "bekochila bezovta qilmasin", "SKIDKA"
 ];
 
-// Smart Regex Pattern (Xatoliklar bilan yozilgan spamlarni ushlash uchun)
+// Smart Regex Pattern
 const spamPatterns = [
     /(guruh|grupp|гурух|групп).*?(aktiv|актив|odam|одам|ayol|erkak|juvoy|kantakt|kontakt)/i,
     /(terib|teriib|териб).*?(qush|qosh|qo'?sh|куш|кош)/i,
@@ -195,12 +194,13 @@ const spamPatterns = [
     /birinchi.*?yozgan.*?kishiga/i,
     /(premium|премиум).*?(olib|олиб)/i,
     /savdo.*?shug['o]llanmoqchi/i,
-    /[\u4e00-\u9fa5]/, // Xitoycha harflar va reklamalarni ushlaydi
-    /([^\w\s])\1{5,}/ // Bitta maxsus belgini 5 marta takrorlab (◇◇◇◇◇◇ kabi) spam qiladiganlarni ushlaydi
+    /[\u4e00-\u9fa5]/, // Xitoycha harflar
+    /([^\w\s])\1{5,}/, // Bitta maxsus belgini 5 marta takrorlab spam qiladiganlarni ushlash
+    /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/ // Arab va Fors alifbosini to'liq bloklash
 ];
 
 // ==========================================
-// 5. APK, SPAM VA LINKLARNI AVTOMATIK TEKSHIRISH
+// 5. BARCHA QOIDALARNI AVTOMATIK TEKSHIRISH
 // ==========================================
 bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx, next) => {
     if (ctx.chat.type === 'private') return next();
@@ -214,7 +214,29 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
         const chatMember = await ctx.getChatMember(userId);
         const isAdmin = chatMember.status === 'administrator' || chatMember.status === 'creator';
 
-        // --- A) APK TEKSHIRUVI ---
+        // --- A) FORWARD QILINGAN XABARLAR TEKSHIRUVI ---
+        // Boshqa kanaldan yoki birovdan forward qilingan xabarlarni to'xtatamiz
+        const isForwarded = message.forward_date || message.forward_origin;
+        if (isForwarded) {
+            if (!isAdmin) {
+                await ctx.deleteMessage(messageId).catch(() => {});
+
+                const durationMs = 3 * 24 * 60 * 60 * 1000;
+                const unbanDate = new Date(Date.now() + durationMs);
+                const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
+                const untilDate3 = Math.floor(unbanDate.getTime() / 1000);
+
+                await ctx.restrictChatMember(userId, {
+                    permissions: { can_send_messages: false, can_send_media_messages: false, can_send_other_messages: false, can_add_web_page_previews: false },
+                    until_date: untilDate3
+                });
+
+                await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhga boshqa joydan xabar uzatish (Forward) taqiqlanadi!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
+                return;
+            }
+        }
+
+        // --- B) APK TEKSHIRUVI ---
         if (message.document && message.document.file_name) {
             if (message.document.file_name.toLowerCase().endsWith('.apk')) {
                 await ctx.deleteMessage(messageId).catch(() => {});
@@ -235,28 +257,24 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
             }
         }
 
-        // Xabar matnini aniqlash (oddiy text yoki rasm/video ostidagi yozuv)
+        // Xabar matnini aniqlash
         const textToCheck = message.text || message.caption || '';
 
-        // --- B) SPAM SO'ZLAR VA AQLLI FILTR TEKSHIRUVI ---
+        // --- C) SPAM SO'ZLAR VA AQLLI FILTR TEKSHIRUVI ---
         if (textToCheck) {
-            // Matnni kichik harfga o'tkazish va tutuq belgilarini olib tashlash
             const normalizedText = textToCheck.toLowerCase().replace(/['‘`’ʻ]/g, '');
 
-            // 1. Siz kiritgan spamWords bazasidan tekshirish
             const isSpamWord = spamWords.some(word =>
                 normalizedText.includes(word.toLowerCase().replace(/['‘`’ʻ]/g, ''))
             );
 
-            // 2. Smart Regex Pattern (Aqlli AI) orqali tekshirish
             const isSpamPattern = spamPatterns.some(pattern => pattern.test(normalizedText));
 
-            // Agar qaysidir filtrda spam topilsa
             if (isSpamWord || isSpamPattern) {
                 await ctx.deleteMessage(messageId).catch(() => {});
 
                 if (!isAdmin) {
-                    const durationMs = 3 * 24 * 60 * 60 * 1000; // 3 kun
+                    const durationMs = 3 * 24 * 60 * 60 * 1000;
                     const unbanDate = new Date(Date.now() + durationMs);
                     const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
                     const untilDate3 = Math.floor(unbanDate.getTime() / 1000);
@@ -275,19 +293,25 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
             }
         }
 
-        // --- C) LINK VA INSERT LINK TEKSHIRUVI ---
+        // --- D) LINK VA USERNAME (@) TEKSHIRUVI ---
         const entities = message.entities || message.caption_entities;
-        let hasLink = false;
+        let hasLinkOrMention = false;
 
         if (entities) {
-            hasLink = entities.some(entity => entity.type === 'url' || entity.type === 'text_link');
+            // oddiy ssilka, yashiringan ssilka, @username va yashiringan username'larni ushlaymiz
+            hasLinkOrMention = entities.some(entity =>
+                entity.type === 'url' ||
+                entity.type === 'text_link' ||
+                entity.type === 'mention' ||
+                entity.type === 'text_mention'
+            );
         }
 
-        if (hasLink) {
+        if (hasLinkOrMention) {
             if (!isAdmin) {
                 await ctx.deleteMessage(messageId).catch(() => {});
 
-                const durationMs = 3 * 24 * 60 * 60 * 1000; // 3 kun
+                const durationMs = 3 * 24 * 60 * 60 * 1000;
                 const unbanDate = new Date(Date.now() + durationMs);
                 const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
                 const untilDate3 = Math.floor(unbanDate.getTime() / 1000);
@@ -297,7 +321,7 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
                     until_date: untilDate3
                 });
 
-                await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhda havola (link) tarqatish mumkin emas!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
+                await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhda havola (link) yoki reklama (@username) tarqatish mumkin emas!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
                 return;
             }
         }
@@ -311,7 +335,7 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
 
 // Botni ishga tushirish
 bot.launch().then(() => {
-    console.log("✅ Bot muvaffaqiyatli ishga tushdi (Anti-Spam Regex va Express bilan).");
+    console.log("✅ Bot muvaffaqiyatli ishga tushdi (Anti-Spam, Arab Regex va Express bilan).");
 });
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
