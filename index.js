@@ -1,4 +1,5 @@
 const { Telegraf, Markup } = require('telegraf');
+const express = require('express');
 
 // Bot tokenini kiritamiz
 const bot = new Telegraf('8129133467:AAFMEMiKOgrLshkxroQANfgsm3Fmb0EPUPo');
@@ -34,18 +35,15 @@ bot.command('mute', async (ctx) => {
     const senderId = ctx.from.id;
 
     try {
-        // Buyruqni bergan shaxs admin ekanligini tekshirish
         const senderMember = await ctx.getChatMember(senderId);
         const isSenderAdmin = senderMember.status === 'administrator' || senderMember.status === 'creator';
 
         if (!isSenderAdmin) {
             const msg = await ctx.reply("❌ Bu buyruqdan faqat adminlar foydalana oladi.");
-            // 5 soniyadan keyin ogohlantirishni o'chirish
             setTimeout(() => ctx.deleteMessage(msg.message_id).catch(() => {}), 5000);
             return;
         }
 
-        // Xabarga reply qilinganligini tekshirish
         if (!ctx.message.reply_to_message) {
             const msg = await ctx.reply("⚠️ Iltimos, xaqoratli xabarga reply qilib /mute deb yozing.");
             setTimeout(() => ctx.deleteMessage(msg.message_id).catch(() => {}), 5000);
@@ -56,10 +54,8 @@ bot.command('mute', async (ctx) => {
         const targetId = targetMessage.from.id;
         const targetName = targetMessage.from.first_name;
 
-        // O'z-o'zini yoki botni mute qilmasligi uchun
         if (targetId === ctx.botInfo.id) return ctx.reply("🤖 Botni mute qilib bo'lmaydi.");
 
-        // Mute qilinayotgan shaxs admin emasligini tekshirish (Bot adminni cheklay olmaydi)
         const targetMember = await ctx.getChatMember(targetId);
         const isTargetAdmin = targetMember.status === 'administrator' || targetMember.status === 'creator';
 
@@ -67,24 +63,23 @@ bot.command('mute', async (ctx) => {
             return ctx.reply("⚠️ Kechirasiz, Telegram qoidalariga ko'ra bot adminlarni mute qila olmaydi.");
         }
 
-        // 1. Xaqoratli xabarni o'chirish
+        // Xabarlarni o'chirish
         await ctx.deleteMessage(targetMessage.message_id).catch(() => {});
-        // 2. /mute buyrug'ini o'zini o'chirish
         await ctx.deleteMessage(ctx.message.message_id).catch(() => {});
 
-        // 3. Foydalanuvchini mute qilish (cheksiz vaqtga)
+        // Mute qilish
         await ctx.restrictChatMember(targetId, {
             permissions: { can_send_messages: false }
         });
 
-        // 4. Xabar va tugmalarni chiqarish
+        // Xabar va tugmalar
         await ctx.reply(
             `🔇 <a href="tg://user?id=${targetId}">${targetName}</a> xaqoratli xabar yuborgani uchun admin tomonidan mute qilindi.`,
             {
                 parse_mode: 'HTML',
                 ...Markup.inlineKeyboard([
                     Markup.button.callback('🔓 Unmute', `unmute_${targetId}`),
-                    // Markup.button.callback('⚙️ Permissions', `perms_${targetId}`)
+                    Markup.button.callback('⚙️ Permissions', `perms_${targetId}`)
                 ])
             }
         );
@@ -102,16 +97,13 @@ bot.action(/unmute_(.+)/, async (ctx) => {
     const clickerId = ctx.from.id;
 
     try {
-        // Tugmani bosgan odam admin ekanligini tekshiramiz
         const clickerMember = await ctx.getChatMember(clickerId);
         const isClickerAdmin = clickerMember.status === 'administrator' || clickerMember.status === 'creator';
 
         if (!isClickerAdmin) {
-            // Oddiy foydalanuvchiga qizil alert ko'rsatadi
             return ctx.answerCbQuery("❌ Bu tugmadan faqat adminlar foydalana oladi!", { show_alert: true });
         }
 
-        // Foydalanuvchi huquqlarini tiklash (Unmute)
         await ctx.restrictChatMember(targetId, {
             permissions: {
                 can_send_messages: true,
@@ -122,8 +114,6 @@ bot.action(/unmute_(.+)/, async (ctx) => {
         });
 
         await ctx.answerCbQuery("✅ Foydalanuvchi muvaffaqiyatli unmute qilindi!");
-
-        // Xabarni o'zgartirib qo'yish
         await ctx.editMessageText(`✅ Ushbu foydalanuvchi admin tomonidan unmute qilindi va yozish huquqi tiklandi.`);
     } catch (error) {
         console.error("Unmute actionda xatolik:", error);
@@ -143,7 +133,6 @@ bot.action(/perms_(.+)/, async (ctx) => {
             return ctx.answerCbQuery("❌ Bu tugmadan faqat adminlar foydalana oladi!", { show_alert: true });
         }
 
-        // Permission tugmasi bosilganda to'liq huquqlarni beramiz
         await ctx.restrictChatMember(targetId, {
             permissions: {
                 can_send_messages: true,
@@ -166,7 +155,25 @@ bot.action(/perms_(.+)/, async (ctx) => {
 });
 
 // ==========================================
-// 4. APK VA LINKLARNI AVTOMATIK TEKSHIRISH
+// 4. SPAM SO'ZLAR BAZASI
+// ==========================================
+const spamWords = [
+    "odam qosh", "odam qush",
+    "aktiv ayol", "aktiv erkak",
+    "terib qosh", "terib qush",
+    "halol va qonuniy", "qonuniy halol",
+    "ish vaqti erkin", "tajriba talab",
+    "haftalik daromad", "oylik daromad",
+    "bola puli", "nakrutka",
+    "obunachi kopaytirish", "reaksiya va layk",
+    "ovoz yigib", "onlayn ish", "online ish",
+    "premium olib", "premiumlar",
+    "savdo bn shugullanmoqchi", "daromad topish",
+    "1000 ta toza", "aralash 60 ming", "uzoq muddat kirmagan"
+];
+
+// ==========================================
+// 5. APK, SPAM VA LINKLARNI AVTOMATIK TEKSHIRISH
 // ==========================================
 bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx, next) => {
     if (ctx.chat.type === 'private') return next();
@@ -180,38 +187,62 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
         const chatMember = await ctx.getChatMember(userId);
         const isAdmin = chatMember.status === 'administrator' || chatMember.status === 'creator';
 
-        // --- APK TEKSHIRUVI ---
+        // --- A) APK TEKSHIRUVI ---
         if (message.document && message.document.file_name) {
             if (message.document.file_name.toLowerCase().endsWith('.apk')) {
-
-                // KIM YUBORISHIDAN QAT'I NAZAR FAYLNI O'CHIRAMIZ
                 await ctx.deleteMessage(messageId).catch(() => {});
 
                 if (!isAdmin) {
-                    // Agar yuborgan odam ODDIY FOYDALANUVCHI bo'lsa -> 30 kunga mute qilamiz
-                    const untilDate30 = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60);
+                    const durationMs = 30 * 24 * 60 * 60 * 1000;
+                    const unbanDate = new Date(Date.now() + durationMs);
+                    const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
+                    const untilDate30 = Math.floor(unbanDate.getTime() / 1000);
 
-                    await ctx.restrictChatMember(userId, {
-                        permissions: { can_send_messages: false },
-                        until_date: untilDate30
-                    });
-
-                    await ctx.reply(`🚫 <a href="tg://user?id=${userId}">${userName}</a> guruhga APK fayl yuborgani uchun 30 kungacha xabar yozish huquqidan mahrum qilindi.`, {
-                        parse_mode: 'HTML'
-                    });
+                    await ctx.restrictChatMember(userId, { permissions: { can_send_messages: false }, until_date: untilDate30 });
+                    await ctx.reply(`🚫 <a href="tg://user?id=${userId}">${userName}</a> guruhga APK fayl yuborgani uchun <b>${formattedDate}</b> gacha xabar yozish huquqidan mahrum qilindi.`, { parse_mode: 'HTML' });
                 } else {
-                    // Agar yuborgan odam ADMIN bo'lsa -> faqat ogohlantiramiz (bot adminni mute qilolmaydi)
-                    const msg = await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a> (Admin), xavfsizlik sababli guruhga APK fayl yuborish barchaga taqiqlangan. Xabar o'chirildi!`, {
-                        parse_mode: 'HTML'
-                    });
-                    // Admin yozishmalarini tozalab turish uchun ogohlantirishni 5 soniyadan keyin o'chiramiz (ixtiyoriy)
+                    const msg = await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a> (Admin), xavfsizlik sababli guruhga APK fayl yuborish barchaga taqiqlangan. Xabar o'chirildi!`, { parse_mode: 'HTML' });
                     setTimeout(() => ctx.deleteMessage(msg.message_id).catch(() => {}), 5000);
                 }
                 return;
             }
         }
 
-        // --- LINK VA INSERT LINK TEKSHIRUVI ---
+        // Xabar matnini aniqlash (oddiy text yoki rasm/video ostidagi yozuv)
+        const textToCheck = message.text || message.caption || '';
+
+        // --- B) SPAM SO'ZLARNI TEKSHIRISH ---
+        if (textToCheck) {
+            // Matnni kichik harfga o'tkazish va tutuq belgilarini olib tashlash
+            const normalizedText = textToCheck.toLowerCase().replace(/['‘`’ʻ]/g, '');
+
+            // Xabarda spam so'zlardan biri qatnashganligini tekshirish
+            const isSpam = spamWords.some(word => normalizedText.includes(word));
+
+            if (isSpam) {
+                await ctx.deleteMessage(messageId).catch(() => {});
+
+                if (!isAdmin) {
+                    const durationMs = 3 * 24 * 60 * 60 * 1000; // 3 kun
+                    const unbanDate = new Date(Date.now() + durationMs);
+                    const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
+                    const untilDate3 = Math.floor(unbanDate.getTime() / 1000);
+
+                    await ctx.restrictChatMember(userId, {
+                        permissions: { can_send_messages: false, can_send_media_messages: false, can_send_other_messages: false, can_add_web_page_previews: false },
+                        until_date: untilDate3
+                    });
+
+                    await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhda spam va reklama tarqatish qat'iyan man etiladi!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
+                } else {
+                    const msg = await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a> (Admin), reklama va spam xabarlari avtomatik o'chirildi!`, { parse_mode: 'HTML' });
+                    setTimeout(() => ctx.deleteMessage(msg.message_id).catch(() => {}), 5000);
+                }
+                return;
+            }
+        }
+
+        // --- C) LINK VA INSERT LINK TEKSHIRUVI ---
         const entities = message.entities || message.caption_entities;
         let hasLink = false;
 
@@ -220,24 +251,20 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
         }
 
         if (hasLink) {
-            // Linkni faqat admin bo'lmaganlar yuborsa o'chiramiz va jazolaymiz
             if (!isAdmin) {
                 await ctx.deleteMessage(messageId).catch(() => {});
-                const untilDate3 = Math.floor(Date.now() / 1000) + (3 * 24 * 60 * 60);
+
+                const durationMs = 3 * 24 * 60 * 60 * 1000;
+                const unbanDate = new Date(Date.now() + durationMs);
+                const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
+                const untilDate3 = Math.floor(unbanDate.getTime() / 1000);
 
                 await ctx.restrictChatMember(userId, {
-                    permissions: {
-                        can_send_messages: false,
-                        can_send_media_messages: false,
-                        can_send_other_messages: false,
-                        can_add_web_page_previews: false
-                    },
+                    permissions: { can_send_messages: false, can_send_media_messages: false, can_send_other_messages: false, can_add_web_page_previews: false },
                     until_date: untilDate3
                 });
 
-                await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhda zararli havola (link) tarqatish mumkin emas!\nQoida buzganligingiz uchun 3 kun guruhda xabar yoza olmaysiz. Iltimos guruhga reklama yoki zararli havolalarni tashlamang.`, {
-                    parse_mode: 'HTML'
-                });
+                await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhda havola (link) tarqatish mumkin emas!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
                 return;
             }
         }
@@ -251,21 +278,22 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
 
 // Botni ishga tushirish
 bot.launch().then(() => {
-    console.log("✅ Bot muvaffaqiyatli ishga tushdi (Mute tugmalari bilan).");
+    console.log("✅ Bot muvaffaqiyatli ishga tushdi (Anti-Spam va Express bilan).");
 });
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
 
-
-const express = require('express');
+// ==========================================
+// 6. RENDER UCHUN EXPRESS WEB-SERVER
+// ==========================================
 const app = express();
 
 app.get('/', (req, res) => {
     res.send('Bot faol va ishlamoqda...');
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Web server ${PORT}-portda ishga tushdi.`);
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🌐 Web server ${PORT}-portda ishga tushdi.`);
 });
