@@ -166,7 +166,7 @@ const spamWords = [
     "ish vaqti erkin", "tajriba talab", "lichkamga yozinglar", "+998944449949",
     "haftalik daromad", "oylik daromad", "guruhlardan olib beraman", "Евро ремонт", "Сантехника", "+998916820903",
     "sifatli aktiv", "nakrutka", "платим 2 раза неделю", "kimga shunaqa xizmatim",
-    "obunachi kopaytirish", "reaksiya va layk", "kimga kerek bulsa",
+    "obunachi kopaytirish", "reaksiya va layk", "kimga kerek bulsa", "Diqqat diqqat", "judayam oson ishbor",
     "ovoz yigib", "onlayn ish", "online ish", "Terib qushish iimkoniyati bor",
     "premium olib", "premiumlar", "ovoz yigib beraman", "I have ᴏne Queѕtioռ",
     "savdo bn shugullanmoqchi", "daromad topish", "Иш вақти эркин", "Қизиққанлар батафсил маълумот олиш учун личкага ёзинг",
