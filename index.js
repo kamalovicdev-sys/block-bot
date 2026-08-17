@@ -79,7 +79,7 @@ bot.command('mute', async (ctx) => {
                 parse_mode: 'HTML',
                 ...Markup.inlineKeyboard([
                     Markup.button.callback('🔓 Unmute', `unmute_${targetId}`),
-                    Markup.button.callback('⚙️ Permissions', `perms_${targetId}`)
+                    // Markup.button.callback('⚙️ Permissions', `perms_${targetId}`)
                 ])
             }
         );
@@ -170,7 +170,7 @@ const spamWords = [
     "ovoz yigib", "onlayn ish", "online ish", "Terib qushish iimkoniyati bor", "ADMINLAR UCHUN ELON", "lechkamga yozsin gaplashamizzz", "Бир умир Дуо киламан",
     "premium olib", "premiumlar", "ovoz yigib beraman", "I have ᴏne Queѕtioռ", "odam qoshish hizmati", "Чекланмаган обёмда", "Coucou je suis en Live", "pul topishni oʻrgataman",
     "savdo bn shugullanmoqchi", "daromad topish", "Иш вақти эркин", "Қизиққанлар батафсил маълумот олиш учун личкага ёзинг", "Ҳалол ва қонуний фаолият", "Xitoy Kursimga yoziling",
-    "1000 ta toza", "aralash 60 ming", "uzoq muddat kirmagan", "opa singillarimiz yozin", "bekochila bezovta qilmasin", "SKIDKA"
+    "1000 ta toza", "aralash 60 ming", "uzoq muddat kirmagan", "opa singillarimiz yozin", "bekochila bezovta qilmasin", "SKIDKA", "Pulga kontak qoshamn"
 ];
 
 // Smart Regex Pattern
