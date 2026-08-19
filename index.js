@@ -175,25 +175,76 @@ const spamWords = [
 
 // Smart Regex Pattern
 const spamPatterns = [
-    /(guruh|grupp|гурух|групп).*?(aktiv|актив|odam|одам|ayol|erkak|juvoy|kantakt|kontakt)/i,
+    // --- 1. Odam qo'shish va Nakrutka xizmatlari ---
+    /(guruh|grupp|гурух|групп).*?(aktiv|актив|odam|одам|ayol|erkak|juvoy|kantakt|kontakt|kontak)/i,
     /(terib|teriib|териб).*?(qush|qosh|qo'?sh|куш|кош)/i,
-    /(odam|одам|ayol|erkak|qizlar|qiizlar|kantakt|kontakt).*?(qoshish|qushish|q[o|u]'?shib|qoshib)/i,
+    /(odam|одам|ayol|erkak|qizlar|qiizlar|kantakt|kontakt|kontak).*?(qoshish|qushish|q[o|u]'?shib|qoshib)/i,
+    /(pulga|пулга).*?(kontak|kontakt|kantakt).*?(qosh|qush)/i,
+    /(guruh|grupp).*?(rivojlantirish|ривожлантириш)/i,
     /(nakrutka|накрутка)/i,
     /(obunachi|обуначи).*?(kopaytirish|копайтириш)/i,
+    /(ovoz|овоз).*?(yigib|йигиб)/i,
+    /(reaksiya|реаксия|реакция).*?(layk|лайк)/i,
     /\d+\s*\+\s*\d+\s*ta\s*bonus/i,
     /arzon.*?narx.*?q[o|u]sh/i,
+    /arzon.*?narx.*?guruhga/i,
     /aksiya.*?narx/i,
+
+    // --- 2. Ish, daromad, oylik va biznes takliflari ---
     /(ishchi|ишчи).*?(kerak|керак)/i,
     /(onlayn|online|онлайн|онлайин).*?(daromad|даромад|tarmok|тармок|ish|иш)/i,
+    /(ishlab|ишлаб).*?(daromad|даромад)/i,
     /(uyida|уйида).*?(o'?tirib|утириб)/i,
-    /100%.*?qonuniy/i,
-    /(oylik|ойлик|z\/p|з\/п|foyda|фойда).*?\d+.*?(ming|минг|mln|млн|milion|милон|rub|руб)/i,
+    /(oylik|ойлик|haftalik|хафталик|z\/p|з\/п|foyda|фойда).*?(daromad|даромад|\d+.*?(ming|минг|mln|млн|milion|милон|rub|руб))/i,
     /(bo'?sh|бош).*?(ish|иш).*?(o'?rni|орни)/i,
+    /(ish|иш).*?(vaqti|вакти).*?(erkin|эркин)/i,
+    /(tajriba|тажриба).*?(talab)/i,
+    /(pul|пул).*?(topishni|топишни).*?(o'?rgataman|ўргатаман)/i,
+    /(tadbirkorlikni|тадбиркорликни).*?(o'?rgataman|ўргатаман)/i,
+    /(kampanya|кампаня|kompaniya).*?(taklif|таклиф)/i,
+    /(judayam|жудаям).*?(oson|осон).*?(ish|иш)/i,
+    /100%.*?qonuniy/i,
+    /(halol|халол|qonuniy|қонуний).*?(faoliyat|faolyat|фаолият)/i,
+
+    // --- 3. Ayol-qizlarga qaratilgan maxsus reklamalar ---
+    /(ayol|аёл).*?(qizlar|қизлар).*?(yangilik|янгилик|ish|иш|qulay|қулай)/i,
+    /(ishsiz|ишсиз).*?(ayol|аёл).*?(qiz|киз)/i,
+    /(telefonga|телефонга).*?(tushunadigan|тушунадиган).*?(opa|singil)/i,
     /(bola|бола).*?(puli|пули)/i,
+
+    // --- 4. Xizmatlar, savdo va kurslar ---
+    /(savdo|савдо).*?(shug['o]llanmoqchi|шугулланмокчи)/i,
+    /(xitoy|хитой).*?(kurs|курс)/i,
+    /(mebel|мебел).*?(zakaz|заказ)/i,
+    /(yevro|евро|evro).*?(remont|ремонт)/i,
+    /(santexnika|сантехника)/i,
+    /(xavfsiz|xavsiz|хавфсиз).*?(ishonchli|ишончли)/i,
+    /(spamdan|спамдан).*?(chiqar|чикар)/i,
+
+    // --- 5. Tarmoqli marketing va maxsus yozuvlar ---
     /(mutlaqo|ta'?lim).*?(tekin|bepul)/i,
     /birinchi.*?yozgan.*?kishiga/i,
-    /(premium|премиум).*?(olib|олиб)/i,
-    /savdo.*?shug['o]llanmoqchi/i,
+    /(premium|премиум).*?(bor|бор|olib|олиб|lar)/i,
+    /(bosh|бош).*?(to'lov|tulov|тўлов)/i,
+    /(1000|ming).*?(toza|тоза)/i,
+    /(aralash|аралаш).*?(60|ming)/i,
+    /(uzoq|узоқ).*?(muddat|муддат).*?(kirmagan|кирмаган)/i,
+    /(skidka|скидка)/i,
+    /(cheklanmagan|чекланмаган).*?(obyom|обём|obyem)/i,
+    /(bir|бир).*?(umir|умир).*?(duo|дуо)/i,
+    /(maxsudova|махсудова).*?(zilola|зилола)/i,
+
+    // --- 6. Murojaat, lichka va telefon raqamlar ---
+    /(qiziqqanlar|қизиққанлар|murojaat|мурожаат).*?(lichka|личка|batafsil|батафсил)/i,
+    /(lichkamga|lechkamga|личкамга).*?(yozsin|yozing|gaplashamiz)/i,
+    /(batafsil|батафсил).*?(ma'?lumot|маълумот)/i,
+    /(diqqat|диққат).*?(adminlar|админлар)/i,
+    /(bekorchi|bekochi|бекорчи).*?(bezovta)/i,
+    /\+998\s?\d{9}/, // +998 bilan yozilgan har qanday O'zbekiston raqamini ushlaydi
+
+    // --- 7. Chet tilidagi spamlar va vizual belgilar ---
+    /I have ᴏne Queѕtioռ/i,
+    /Coucou je suis en Live/i,
     /[\u4e00-\u9fa5]/, // Xitoycha harflar
     /([^\w\s])\1{5,}/, // Bitta maxsus belgini 5 marta takrorlab spam qiladiganlarni ushlash
     /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/ // Arab va Fors alifbosini to'liq bloklash
