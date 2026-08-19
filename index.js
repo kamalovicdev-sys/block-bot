@@ -294,7 +294,10 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
                 until_date: untilDate3
             });
 
-            await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhga boshqa joydan xabar uzatish (Forward) taqiqlanadi!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
+            const warningMsg = await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhga boshqa joydan xabar uzatish (Forward) taqiqlanadi!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
+
+            // Xabarni 10 soniyadan keyin avtomatik o'chirish
+            setTimeout(() => ctx.deleteMessage(warningMsg.message_id).catch(() => {}), 10000);
             return;
         }
 
@@ -309,7 +312,10 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
                 const untilDate30 = Math.floor(unbanDate.getTime() / 1000);
 
                 await ctx.restrictChatMember(userId, { permissions: { can_send_messages: false }, until_date: untilDate30 });
-                await ctx.reply(`🚫 <a href="tg://user?id=${userId}">${userName}</a> guruhga APK fayl yuborgani uchun <b>${formattedDate}</b> gacha xabar yozish huquqidan mahrum qilindi.`, { parse_mode: 'HTML' });
+                const warningMsg = await ctx.reply(`🚫 <a href="tg://user?id=${userId}">${userName}</a> guruhga APK fayl yuborgani uchun <b>${formattedDate}</b> gacha xabar yozish huquqidan mahrum qilindi.`, { parse_mode: 'HTML' });
+
+                // Xabarni 10 soniyadan keyin avtomatik o'chirish
+                setTimeout(() => ctx.deleteMessage(warningMsg.message_id).catch(() => {}), 10000);
                 return;
             }
         }
@@ -340,7 +346,10 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
                     until_date: untilDate3
                 });
 
-                await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhda spam va reklama tarqatish qat'iyan man etiladi!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
+                const warningMsg = await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhda spam va reklama tarqatish qat'iyan man etiladi!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
+
+                // Xabarni 10 soniyadan keyin avtomatik o'chirish
+                setTimeout(() => ctx.deleteMessage(warningMsg.message_id).catch(() => {}), 10000);
                 return;
             }
         }
@@ -371,7 +380,10 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
                 until_date: untilDate3
             });
 
-            await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhda havola (link) yoki reklama (@username) tarqatish mumkin emas!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
+            const warningMsg = await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhda havola (link) yoki reklama (@username) tarqatish mumkin emas!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
+
+            // Xabarni 10 soniyadan keyin avtomatik o'chirish
+            setTimeout(() => ctx.deleteMessage(warningMsg.message_id).catch(() => {}), 10000);
             return;
         }
 
@@ -384,7 +396,7 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
 
 // Botni ishga tushirish
 bot.launch().then(() => {
-    console.log("✅ Bot muvaffaqiyatli ishga tushdi (Anti-Spam, Arab Regex va Express bilan).");
+    console.log("✅ Bot muvaffaqiyatli ishga tushdi (Anti-Spam, Arab Regex va Auto-Delete bilan).");
 });
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
