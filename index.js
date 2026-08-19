@@ -78,7 +78,7 @@ bot.command('mute', async (ctx) => {
             {
                 parse_mode: 'HTML',
                 ...Markup.inlineKeyboard([
-                    Markup.button.callback('🔓 Unmute', `unmute_${targetId}`),
+                    Markup.button.callback('🔓 Unmute', `unmute_${targetId}`)
                     // Markup.button.callback('⚙️ Permissions', `perms_${targetId}`)
                 ])
             }
@@ -280,25 +280,49 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
         }
 
         // --- A) FORWARD QILINGAN XABARLAR TEKSHIRUVI ---
-        const isForwarded = message.forward_date || message.forward_origin;
+        const isForwarded = !!(message.forward_date || message.forward_origin || message.forward_from_chat);
+
         if (isForwarded) {
-            await ctx.deleteMessage(messageId).catch(() => {});
+            let isAllowedForward = false;
+            // Ruxsat etilgan rasmiy kanallar username'lari ro'yxati
+            const allowedChannels = ['ishonch', 'ishonchsavdouzbekistan', 'ishonch_filiali'];
+            let fwUsername = '';
 
-            const durationMs = 3 * 24 * 60 * 60 * 1000;
-            const unbanDate = new Date(Date.now() + durationMs);
-            const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
-            const untilDate3 = Math.floor(unbanDate.getTime() / 1000);
+            // Forward qilingan manba (kanal) username'ini ajratib olish
+            if (message.forward_origin && message.forward_origin.chat && message.forward_origin.chat.username) {
+                fwUsername = message.forward_origin.chat.username.toLowerCase();
+            } else if (message.forward_from_chat && message.forward_from_chat.username) {
+                fwUsername = message.forward_from_chat.username.toLowerCase();
+            }
 
-            await ctx.restrictChatMember(userId, {
-                permissions: { can_send_messages: false, can_send_media_messages: false, can_send_other_messages: false, can_add_web_page_previews: false },
-                until_date: untilDate3
-            });
+            // Agar forward qilingan kanal biz ruxsat bergan ro'yxatda bo'lsa
+            if (allowedChannels.includes(fwUsername)) {
+                isAllowedForward = true;
+            }
 
-            const warningMsg = await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhga boshqa joydan xabar uzatish (Forward) taqiqlanadi!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
+            if (isAllowedForward) {
+                // Ruxsat etilgan rasmiy kanal bo'lsa tekshirishni shu yerda to'xtatamiz va xabar guruhda qoladi
+                return next();
+            } else {
+                // Ruxsatsiz joydan forward qilingan bo'lsa:
+                await ctx.deleteMessage(messageId).catch(() => {});
 
-            // Xabarni 10 soniyadan keyin avtomatik o'chirish
-            setTimeout(() => ctx.deleteMessage(warningMsg.message_id).catch(() => {}), 10000);
-            return;
+                const durationMs = 3 * 24 * 60 * 60 * 1000;
+                const unbanDate = new Date(Date.now() + durationMs);
+                const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
+                const untilDate3 = Math.floor(unbanDate.getTime() / 1000);
+
+                await ctx.restrictChatMember(userId, {
+                    permissions: { can_send_messages: false, can_send_media_messages: false, can_send_other_messages: false, can_add_web_page_previews: false },
+                    until_date: untilDate3
+                });
+
+                const warningMsg = await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhga ruxsatsiz boshqa joydan xabar uzatish (Forward) taqiqlanadi!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
+
+                // Xabarni 10 soniyadan keyin avtomatik o'chirish
+                setTimeout(() => ctx.deleteMessage(warningMsg.message_id).catch(() => {}), 10000);
+                return;
+            }
         }
 
         // --- B) APK TEKSHIRUVI ---
