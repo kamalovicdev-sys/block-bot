@@ -168,7 +168,7 @@ const spamWords = [
     "sifatli aktiv", "nakrutka", "платим 2 раза неделю", "kimga shunaqa xizmatim", "guruxga ayollarni terib qushib beraman", "Ishchi kerak.", "Batafsil ma'lumot va ro‘yxatdan o‘tish uchun",
     "obunachi kopaytirish", "reaksiya va layk", "kimga kerek bulsa", "Diqqat diqqat", "judayam oson ishbor", "Ayol qizlarga yangilik", "faqat bu ish Ayol qizlar uchun", "Madina Makka Ziyorati",
     "ovoz yigib", "onlayn ish", "online ish", "Terib qushish iimkoniyati bor", "ADMINLAR UCHUN ELON", "lechkamga yozsin gaplashamizzz", "Бир умир Дуо киламан", "odam kochrip beraman",
-    "premium olib", "premiumlar", "ovoz yigib beraman", "I have ᴏne Queѕtioռ", "odam qoshish hizmati", "Чекланмаган обёмда", "Coucou je suis en Live", "pul topishni oʻrgataman",
+    "premium olib", "premiumlar", "ovoz yigib beraman", "I have ᴏne Queѕtioռ", "odam qoshish hizmati", "Чекланмаган обёмда", "Coucou je suis en Live", "pul topishni oʻrgataman", "веруйте в Иисуса и получите жизнь вечную",
     "savdo bn shugullanmoqchi", "daromad topish", "Иш вақти эркин", "Қизиққанлар батафсил маълумот олиш учун личкага ёзинг", "Ҳалол ва қонуний фаолият", "Xitoy Kursimga yoziling",
     "1000 ta toza", "aralash 60 ming", "uzoq muddat kirmagan", "opa singillarimiz yozin", "bekochila bezovta qilmasin", "SKIDKA", "Pulga kontak qoshamn", "Kasmetikaga qziqegon qzla"
 ];
