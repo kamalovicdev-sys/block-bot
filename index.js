@@ -9,7 +9,7 @@ const bot = new Telegraf('8129133467:AAFMEMiKOgrLshkxroQANfgsm3Fmb0EPUPo');
 // ==========================================
 bot.on([
     'new_chat_members',
-    'left_chat_member',
+    // left_chat_member bu yerdan olindi, chunki unga alohida funksiya yozildi
     'new_chat_title',
     'new_chat_photo',
     'delete_chat_photo',
@@ -23,6 +23,29 @@ bot.on([
         await ctx.deleteMessage(ctx.message.message_id);
     } catch (error) {
         console.error("Xizmat xabarini o'chirishda xatolik:", error);
+    }
+});
+
+// ==========================================
+// 1.1. GURUHDAN CHIQIB KETGANLARNI AVTOMATIK BAN QILISH
+// ==========================================
+bot.on('left_chat_member', async (ctx) => {
+    try {
+        const leftUser = ctx.message.left_chat_member;
+        const userId = leftUser.id;
+
+        // Agar botning o'zini guruhdan chiqarib yuborishgan bo'lsa, hech narsa qilmaslik
+        if (userId === ctx.botInfo.id) return;
+
+        // 1. Foydalanuvchini guruhdan butunlay ban qilish (qayta kira olmaydi)
+        await ctx.banChatMember(userId);
+        console.log(`Foydalanuvchi ${leftUser.first_name} (ID: ${userId}) guruhdan chiqdi va bloklandi.`);
+
+        // 2. "Guruhni tark etdi" degan tizimli xabarni zudlik bilan o'chirib tashlash
+        await ctx.deleteMessage(ctx.message.message_id);
+
+    } catch (error) {
+        console.error("Guruhdan chiqqan foydalanuvchini bloklashda xatolik:", error);
     }
 });
 
