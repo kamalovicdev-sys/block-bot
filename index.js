@@ -184,7 +184,7 @@ const spamWords = [
     "odam qosh", "odam qush", "Spamdan chiqarishni", "ODAM QOSHISHNI OʻRGATAMAN", "PREMIUM BOR", "Ayol qizlarga yangilik", "Guruh rivojlantirish bilan shug‘ullanaman", "ishlab daromad qilaman",
     "aktiv ayol", "aktiv odam", "ИШСИЗ АЙОЛ КИЗЛАРИМИЗЗИ УЗ КАМПАНЯМГА ТАКЛИФ КИЛАМАН", "Аёл-қизлар учун қулай иш", "Тадбиркорликни ўргатаман", "BARCHA TURDAGI MEBELARGA ZAKAZ OLAMIZ",
     "terib qosh", "terib qush", "Onlayn daromad", "ONLAYN ISH ga taklif qilaman", "Diqqat adminlar uchun e'lon", "Bosh tulov", "+998903045417", "spamdan chiqarib beraman", "ADMINDAN UZUR SO'RAYMIZ",
-    "halol va qonuniy", "qonuniy halol", "Ишчи керак", "Qiziqqanlar lichga", "Odam qushib beramiz narxlari aaksiyada hozirda kimga kerak bulsa lechkamga yozsin gaplashamizzz",
+    "halol va qonuniy", "qonuniy halol", "Ишчи керак", "Qiziqqanlar lichga", "Odam qushib beramiz narxlari aaksiyada hozirda kimga kerak bulsa lechkamga yozsin gaplashamizzz", "Faberlica azo boling",
     "ish vaqti erkin", "tajriba talab", "lichkamga yozinglar", "+998944449949", "Diqqat adminlar uchun faqat", "arzon narxda guruhga", "telefonga tushunadigan opa singillarimiz yozin",
     "haftalik daromad", "oylik daromad", "guruhlardan olib beraman", "Евро ремонт", "Сантехника", "+998916820903", "Xavsiz va ishonchli", "Murojaatlar lichkada", "Maxsudova Zilola",
     "sifatli aktiv", "nakrutka", "платим 2 раза неделю", "kimga shunaqa xizmatim", "guruxga ayollarni terib qushib beraman", "Ishchi kerak.", "Batafsil ma'lumot va ro‘yxatdan o‘tish uchun",
@@ -307,7 +307,7 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
         if (isForwarded) {
             let isAllowedForward = false;
             // Ruxsat etilgan rasmiy kanallar username'lari ro'yxati
-            const allowedChannels = ['ishonch', 'ishonchsavdouzbekistan', 'ishonch_filiali'];
+            const allowedChannels = ['ishonch', 'ishonchsavdouzbekistan', 'Ishonch_Quva', 'Ishonch_dangara', '@Ishonch_fargonaSUM', 'ishonch_uchkoprik', 'Ishonch_qoqon', 'Ishonch_bagdod', '@ishonch_yaypan', 'Ishonch_Fargona', 'ishonch_filiali'];
             let fwUsername = '';
 
             // Forward qilingan manba (kanal) username'ini ajratib olish
