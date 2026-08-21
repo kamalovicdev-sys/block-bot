@@ -20,7 +20,7 @@ bot.on([
     'message_auto_delete_timer_changed'
 ], async (ctx) => {
     try {
-        await ctx.deleteMessage(ctx.message.message_id);
+        await ctx.deleteMessage(ctx.message.message_id).catch(() => {});
     } catch (error) {
         console.error("Xizmat xabarini o'chirishda xatolik:", error);
     }
@@ -38,11 +38,11 @@ bot.on('left_chat_member', async (ctx) => {
         if (userId === ctx.botInfo.id) return;
 
         // 1. Foydalanuvchini guruhdan butunlay ban qilish (qayta kira olmaydi)
-        await ctx.banChatMember(userId);
+        await ctx.banChatMember(userId).catch(() => {});
         console.log(`Foydalanuvchi ${leftUser.first_name} (ID: ${userId}) guruhdan chiqdi va bloklandi.`);
 
         // 2. "Guruhni tark etdi" degan tizimli xabarni zudlik bilan o'chirib tashlash
-        await ctx.deleteMessage(ctx.message.message_id);
+        await ctx.deleteMessage(ctx.message.message_id).catch(() => {});
 
     } catch (error) {
         console.error("Guruhdan chiqqan foydalanuvchini bloklashda xatolik:", error);
@@ -102,7 +102,6 @@ bot.command('mute', async (ctx) => {
                 parse_mode: 'HTML',
                 ...Markup.inlineKeyboard([
                     Markup.button.callback('🔓 Unmute', `unmute_${targetId}`)
-                    // Markup.button.callback('⚙️ Permissions', `perms_${targetId}`)
                 ])
             }
         );
@@ -261,7 +260,7 @@ const spamPatterns = [
     /(qiziqqanlar|қизиққанлар|murojaat|мурожаат).*?(lichka|личка|batafsil|батафсил)/i,
     /(lichkamga|lechkamga|личкамга).*?(yozsin|yozing|gaplashamiz)/i,
     /(batafsil|батафсил).*?(ma'?lumot|маълумот)/i,
-    /(diqqat|диққат).*?(adminlar|админлар)/i,
+    /(diqqat|диқqat).*?(adminlar|админлар)/i,
     /(bekorchi|bekochi|бекорчи).*?(bezovta)/i,
     /\+998\s?\d{9}/, // +998 bilan yozilgan har qanday O'zbekiston raqamini ushlaydi
 
@@ -338,7 +337,7 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
                 await ctx.restrictChatMember(userId, {
                     permissions: { can_send_messages: false, can_send_media_messages: false, can_send_other_messages: false, can_add_web_page_previews: false },
                     until_date: untilDate3
-                });
+                }).catch(() => {});
 
                 const warningMsg = await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhga ruxsatsiz boshqa joydan xabar uzatish (Forward) taqiqlanadi!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
 
@@ -358,7 +357,7 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
                 const formattedDate = unbanDate.toLocaleString('uz-UZ', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tashkent' });
                 const untilDate30 = Math.floor(unbanDate.getTime() / 1000);
 
-                await ctx.restrictChatMember(userId, { permissions: { can_send_messages: false }, until_date: untilDate30 });
+                await ctx.restrictChatMember(userId, { permissions: { can_send_messages: false }, until_date: untilDate30 }).catch(() => {});
                 const warningMsg = await ctx.reply(`🚫 <a href="tg://user?id=${userId}">${userName}</a> guruhga APK fayl yuborgani uchun <b>${formattedDate}</b> gacha xabar yozish huquqidan mahrum qilindi.`, { parse_mode: 'HTML' });
 
                 // Xabarni 10 soniyadan keyin avtomatik o'chirish
@@ -391,7 +390,7 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
                 await ctx.restrictChatMember(userId, {
                     permissions: { can_send_messages: false, can_send_media_messages: false, can_send_other_messages: false, can_add_web_page_previews: false },
                     until_date: untilDate3
-                });
+                }).catch(() => {});
 
                 const warningMsg = await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhda spam va reklama tarqatish qat'iyan man etiladi!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
 
@@ -425,7 +424,7 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
             await ctx.restrictChatMember(userId, {
                 permissions: { can_send_messages: false, can_send_media_messages: false, can_send_other_messages: false, can_add_web_page_previews: false },
                 until_date: untilDate3
-            });
+            }).catch(() => {});
 
             const warningMsg = await ctx.reply(`⚠️ <a href="tg://user?id=${userId}">${userName}</a>, guruhda havola (link) yoki reklama (@username) tarqatish mumkin emas!\n\n⏳ Qoida buzganligingiz uchun <b>${formattedDate}</b> gacha guruhda xabar yoza olmaysiz.`, { parse_mode: 'HTML' });
 
@@ -443,7 +442,7 @@ bot.on(['text', 'photo', 'video', 'document', 'audio', 'animation'], async (ctx,
 
 // Botni ishga tushirish
 bot.launch().then(() => {
-    console.log("✅ Bot muvaffaqiyatli ishga tushdi (Anti-Spam, Arab Regex va Auto-Delete bilan).");
+    console.log("✅ Bot muvaffaqiyatli ishga tushdi (To'liq Himoya tizimi bilan).");
 });
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
