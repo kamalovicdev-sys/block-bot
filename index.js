@@ -1,8 +1,12 @@
 const { Telegraf, Markup } = require('telegraf');
 const express = require('express');
 
-// Bot tokenini kiritamiz
-const bot = new Telegraf('8129133467:AAFMEMiKOgrLshkxroQANfgsm3Fmb0EPUPo');
+require('dotenv').config();
+const { Telegraf, Markup } = require('telegraf');
+const express = require('express');
+
+// Bot tokenini muhit o'zgaruvchisidan olamiz
+const bot = new Telegraf(process.env.BOT_TOKEN);
 
 // ==========================================
 // 1. XIZMAT XABARLARINI O'CHIRISH
